@@ -1,3 +1,5 @@
 node_modules
 step
 Dockerfile
+.env
+.gitignore
