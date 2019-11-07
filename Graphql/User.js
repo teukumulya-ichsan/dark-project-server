@@ -2,16 +2,12 @@ import { gql } from 'apollo-server-express';
 import * as models from '../models';
 const brcypt = require('bcryptjs');
 
-export const typeDefs = gql`
-  input RegisterInput {
-    name: String!
-    email: String!
-    password: String!
-  }
+// import uuid from 'uuid/v4';
 
-  input LoginInput {
-    email: String!
-    password: String!
+export const typeDefs = gql`
+  # tipe Return Auth Data setelah Login
+  type AuthPayload {
+    user: User
   }
 
   type User {
@@ -24,44 +20,94 @@ export const typeDefs = gql`
   type Query {
     users: [User!]!
     user(id: ID!): User
+    currentUser: User
   }
 
   type Mutation {
-    register(input: RegisterInput): User!
-    login(input: LoginInput): User!
+    login(email: String!, password: String!): AuthPayload
+    register(name: String!, email: String!, password: String!): AuthPayload
+    logout: Boolean
   }
 `;
 
 export const resolvers = {
   Query: {
-    async users(root, args, { models }) {
+    // getting all Users
+    users: async () => {
       return models.User.findAll();
     },
-    // async user(root, { id }, { models }) {
-    async user(root, { id }, { models }) {
+
+    // getting user by Id
+    user: async (root, { id }) => {
       return models.User.findByPk(id);
-    }
-  },
-  Mutation: {
-    async register(root, { input: RegisterInput }, { models }) {
-      return models.User.findOne({
-        where: { email: RegisterInput.email }
-      })
-        .then(async user => {
-          if (user) {
-            throw new Error('User exists already');
-          } else {
-            return models.User.create({
-              name: RegisterInput.name,
-              email: RegisterInput.email,
-              password: await brcypt.hash(RegisterInput.password, 10)
-            });
-          }
-        })
-        .catch(err => {
-          throw err;
-        });
     },
-    async login(root, { input: LoginInput }, { models }) {}
+
+    // getting current users who login
+    currentUser: async (parent, args, context) => context.req.user
+  },
+
+  Mutation: {
+    // register
+    register: async (parent, { name, email, password }, context) => {
+      // checking user exists with email
+      const userExistWithEmail = await models.User.findOne({
+        where: {
+          email: email
+        }
+      });
+
+      // error handling if email is exists
+      if (userExistWithEmail) {
+        throw new Error('User sudah terdaftar');
+      }
+      const newUser = models.User.create({
+        // id: uuid(),
+        name: name,
+        email: email,
+        password: await brcypt.hash(password, 10)
+      });
+
+      // save user session to context
+      context.login(newUser);
+
+      return { user: newUser };
+    },
+
+    // Login
+    login: async (parent, { email, password }, context) => {
+      // check email is registered
+      const users = await models.User.findOne({
+        where: {
+          email: email
+        }
+      });
+
+      // handle error if email is not registered
+      if (!users) {
+        throw new Error('Email tidak terdaftar');
+      }
+
+      // comparing password with hashed password
+      const isMatch = await brcypt.compare(password, users.password);
+
+      // handle Error if password is not match
+      if (!isMatch) {
+        throw new Error('Password is Incorect');
+      }
+
+      // passport authenticate
+      await context.authenticate('graphql-local', {
+        email,
+        password
+      });
+
+      // save user session to context
+      context.login(users);
+
+      return { user: users };
+    },
+
+    // logout of user with signIn into session
+    logout: async (parent, args, context) => context.logout()
   }
 };
