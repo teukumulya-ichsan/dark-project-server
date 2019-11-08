@@ -10,6 +10,8 @@ require('dotenv').config();
 const app = express();
 app.use(bodyParser.json());
 
+import schema from './Graphql/schema';
+
 // using session for express
 app.use(
   session({
@@ -61,9 +63,8 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 const server = new ApolloServer({
-  // modules: [require('./Graphql/User')],
-  modules: [require('./GraphQL/User')],
-
+  // modules: [require('./GraphQL/User')],
+  schema: schema,
   // graphQL session Context
   context: ({ req, res }) => buildContext({ req, res })
 });

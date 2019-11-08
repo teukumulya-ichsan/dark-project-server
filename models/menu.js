@@ -13,13 +13,16 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING(256),
         allowNull: false
       },
-      description: DataTypes.STRING(256),
+      description: {
+        type: DataTypes.STRING(256),
+        allowNull: true
+      },
       price: {
         type: DataTypes.INTEGER(15),
         allowNull: false
       }
     },
-    { tableName: 'menu' }
+    { tableName: 'Menu', timestamps: false }
   );
   Menu.associate = function(models) {
     // associations can be defined here

@@ -4,20 +4,8 @@ const brcypt = require('bcryptjs');
 
 // import uuid from 'uuid/v4';
 
-export const typeDefs = gql`
-  # tipe Return Auth Data setelah Login
-  type AuthPayload {
-    user: User
-  }
-
-  type User {
-    id: ID!
-    name: String!
-    email: String!
-    password: String
-  }
-
-  type Query {
+export const typeDef = gql`
+  extend type Query {
     users: [User!]!
     user(id: ID!): User
     currentUser: User
@@ -27,6 +15,18 @@ export const typeDefs = gql`
     login(email: String!, password: String!): AuthPayload
     register(name: String!, email: String!, password: String!): AuthPayload
     logout: Boolean
+  }
+
+  # tipe Return Auth Data setelah Login
+  type AuthPayload {
+    user: User
+  }
+
+  type User {
+    id: ID!
+    name: String!
+    email: String!
+    password: String!
   }
 `;
 
