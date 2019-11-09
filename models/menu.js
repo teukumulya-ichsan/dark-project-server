@@ -22,7 +22,7 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false
       }
     },
-    { tableName: 'Menu', timestamps: false }
+    { tableName: 'Menus', timestamps: false }
   );
   Menu.associate = function(models) {
     // associations can be defined here

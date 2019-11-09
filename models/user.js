@@ -1,7 +1,7 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define(
-    'User', // nama model
+    'User',
     {
       id: {
         type: DataTypes.INTEGER(10).UNSIGNED,
@@ -23,7 +23,7 @@ module.exports = (sequelize, DataTypes) => {
       }
     },
     {
-      tableName: 'User',
+      tableName: 'Users',
       timestamps: false
     }
   );

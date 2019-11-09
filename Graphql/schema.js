@@ -5,16 +5,18 @@ import { makeExecutableSchema } from 'graphql-tools';
 
 // Untuk Query Standalone
 const Query = `
+
 type Query {
-_empty: String
-  }
+  _empty: String
+}
+
 `;
 const resolvers = {};
 
 // untuk gabungkan semua schema yang di extending
 const schema = makeExecutableSchema({
-  typeDefs: [Query, User, Menu],
-  resolvers: merge(resolvers, userResolvers, menuResolvers)
+  typeDefs: [Query, Menu, User],
+  resolvers: merge(resolvers, menuResolvers, userResolvers)
 });
 
 export default schema;

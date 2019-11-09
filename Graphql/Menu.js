@@ -1,6 +1,8 @@
 import { gql } from 'apollo-server-express';
 import * as models from '../models';
 
+// import uuid from 'uuid/v4';
+
 export const typeDef = gql`
   extend type Query {
     menus: [Menu!]!
@@ -14,9 +16,9 @@ export const typeDef = gql`
   }
 `;
 
-export const resolver = {
+export const resolvers = {
   Query: {
-    //getting all Menu
+    // getting all Users
     menus: async () => {
       return models.Menu.findAll();
     }
