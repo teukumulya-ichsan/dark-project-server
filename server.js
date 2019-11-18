@@ -1,3 +1,4 @@
+require('dotenv').config();
 const { ApolloServer } = require('apollo-server-express');
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -5,12 +6,18 @@ import session from 'express-session';
 import uuid from 'uuid';
 import passport from 'passport';
 import { GraphQLLocalStrategy, buildContext } from 'graphql-passport';
+import schema from './Graphql/schema';
 import * as models from './models';
-require('dotenv').config();
+import cors from 'cors';
+
 const app = express();
 app.use(bodyParser.json());
 
-import schema from './Graphql/schema';
+const corsOptions = {
+  origin: 'http://localhost:3000',
+  credentials: true
+};
+app.use(cors(corsOptions));
 
 // using session for express
 app.use(
@@ -44,7 +51,7 @@ passport.use(
   })
 );
 
-//  fuction passport seriallizer user
+// //  fuction passport seriallizer user
 passport.serializeUser(function(user, done) {
   done(null, user.id);
 });
@@ -69,7 +76,7 @@ const server = new ApolloServer({
   context: ({ req, res }) => buildContext({ req, res })
 });
 
-server.applyMiddleware({ app, path: '/graphql' });
+server.applyMiddleware({ app, cors: false, path: '/graphql' });
 
 app.listen({ port: process.env.PORT }, () => {
   console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`);
